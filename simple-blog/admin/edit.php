@@ -1,6 +1,12 @@
 <?php
 require '../connection.php';
 
+session_start();
+
+if (!isset($_SESSION['user']) || empty($_SESSION)) {
+    header('Location: /simple-blog/login.php');
+}
+
 // Default message value.
 $message = '';
 

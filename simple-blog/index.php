@@ -7,11 +7,9 @@ require './connection.php';
     session_destroy();
     session_unset();
     $_SESSION = [];
+    header('Location: login.php');
   }
 
-  if (!isset($_SESSION) || empty($_SESSION)) {
-      header('Location: login.php');
-  }
 $message = FALSE;
 
 // SQL query string.
@@ -34,6 +32,8 @@ if ( $result = $connection->query( $sql ) ) {
       <?php include( './nav.php' ); // nav ?>
     </header>
         <h1>Blog Index</h1>
+        <?php if ($_SESSION['logged_in']) {
+          echo 'Welcome: ' . $_SESSION['user'] . ', you are logged in.';} ?>
         <?php if ( $message ) echo "<p>{$message}</p>"; // Show a message! ?>
         <ul>
             <?php while( $row = $result->fetch_assoc() ) : ?>
@@ -47,6 +47,7 @@ if ( $result = $connection->query( $sql ) ) {
                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                 <input type="submit" value="Read More">
                             </form>
+                          <?php if ($_SESSION['logged_in']) : ?>
                             <form action="./admin/edit.php" method="GET">
                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                 <input type="submit" value="Edit Post">
@@ -55,14 +56,22 @@ if ( $result = $connection->query( $sql ) ) {
                                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                 <input type="submit" value="Delete Post">
                             </form>
+                          <?php endif; ?>
                         </p>
                     </article>
                 </li>
             <?php endwhile; ?>
         </ul>
-        <p><form action="#" method="GET">
-          <input type="submit" name="logout" value="Logout!">
+        <?php if ($_SESSION['logged_in']) : ?>
+        <p>
+          <form action="./admin/new.php" method="GET">
+            <input type="hidden" name="id">
+            <input type="submit" value="New Post">
+          </form>
+          <form action="#" method="GET">
+            <input type="submit" name="logout" value="Logout!">
           </form>
         </p>
+        <?php endif; ?>
     </body>
 </html>

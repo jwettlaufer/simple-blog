@@ -1,6 +1,12 @@
 <?php
 require '../connection.php';
 
+session_start();
+
+if (!isset($_SESSION['user']) || empty($_SESSION)) {
+    header('Location: /simple-blog/login.php');
+}
+
 $message = FALSE;
 
 if ( isset( $_POST ) && !empty( $_POST ) ) {
