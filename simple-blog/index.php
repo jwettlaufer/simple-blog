@@ -12,12 +12,34 @@ require './connection.php';
 
 $message = FALSE;
 
+// define results per page
+$results_per_page = 2;
+
+// find the number of results in database
+$sql='SELECT * FROM posts';
+$result = $connection->query( $sql );
+$number_of_results = mysqli_num_rows($result);
+
+// determine number of total pages available
+$number_of_pages = ceil($number_of_results/$results_per_page);
+
+// determine current page number
+if (!isset($_GET['page'])) {
+  $page = 1;
+} else {
+  $page = $_GET['page'];
+}
+
+// determine the sql LIMIT starting number for the results on the displaying page
+$this_page_first_result = ($page-1)*$results_per_page;
+
 // SQL query string.
-$sql = 'SELECT * FROM posts;';
+$sql='SELECT * FROM posts LIMIT ' . $this_page_first_result . ',' .  $results_per_page;
+$result = $connection->query( $sql );
 
 // Execute query.
 if ( $result = $connection->query( $sql ) ) {
-    $message = 'Blog posts queried successfully!';
+    $message = 'See current blog posts below.';
 } else {
     $message = 'An error was encountered while trying to retrieve blog posts.';
     $message .= '<br><pre>'.print_r( $connection->error_list, TRUE ).'</pre>';
@@ -62,6 +84,10 @@ if ( $result = $connection->query( $sql ) ) {
                 </li>
             <?php endwhile; ?>
         </ul>
+        <?php // display the links to the pages
+        for ($page=1;$page<=$number_of_pages;$page++) {
+          echo '<a href="index.php?page=' . $page . '">' . $page . '</a> ';
+        } ?>
         <?php if ($_SESSION['logged_in']) : ?>
         <p>
           <form action="./admin/new.php" method="GET">
